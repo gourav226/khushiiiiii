@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - MyTicketsShow</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #e4002b;
+      --primary-hover: #ff2a5f;
+      --primary-gradient: linear-gradient(135deg, #e4002b, #b90022);
+      --success: #10b981;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --font: 'Outfit', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font);
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: 260px;
+      background-color: #0b0f19;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 30px 20px;
+      position: fixed;
+      height: 100vh;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      text-decoration: none;
+    }
+
+    .logo span {
+      color: var(--text-main);
+    }
+
+    .nav-menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-item a:hover, .nav-item.active a {
+      color: var(--text-main);
+      background-color: rgba(228, 0, 43, 0.1);
+      border-left: 4px solid var(--primary);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+    }
+
+    .btn-back-home {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      text-align: center;
+      background: var(--primary-gradient);
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 8px;
+      transition: 0.3s;
+      box-shadow: 0 4px 12px rgba(228, 0, 43, 0.2);
+    }
+
+    .btn-back-home:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(228, 0, 43, 0.3);
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 260px;
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+    }
+
+    .header-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .header-panel h1 {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .header-panel p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    /* Analytics Grid */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background-color: var(--bg-card);
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .stat-desc {
+      font-size: 12px;
+      color: var(--success);
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Dashboard Layout Splits */
+    .content-layout {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr;
+      gap: 30px;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .content-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Section Card Styles */
+    .section-card {
+      background-color: var(--bg-card);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      margin-bottom: 30px;
+    }
+
+    .section-card h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Table Styling */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 13px;
+      text-transform: uppercase;
+      padding: 14px 16px;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    td {
+      padding: 16px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+
+    tr:hover td {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .badge-seats {
+      background-color: rgba(228, 0, 43, 0.15);
+      color: var(--primary-hover);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .btn-cancel {
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary-hover);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .btn-cancel:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* Form Inputs */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      background-color: #0f172a;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 14px;
+      transition: 0.3s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(228, 0, 43, 0.2);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 16px;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--primary-gradient);
+      border: none;
+      color: #fff;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 4px 10px rgba(228, 0, 43, 0.2);
+    }
+
+    .btn-submit:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 6px 14px rgba(228, 0, 43, 0.3);
+    }
+
+    /* Movie List Admin Cards */
+    .admin-movie-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .admin-movie-item {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      padding: 10px;
+      background: #0f172a;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .admin-movie-img {
+      width: 50px;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    .admin-movie-details {
+      flex: 1;
+    }
+
+    .admin-movie-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .admin-movie-genre {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .btn-delete-movie {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 18px;
+      padding: 4px;
+      transition: 0.2s;
+    }
+
+    .btn-delete-movie:hover {
+      color: var(--primary-hover);
+    }
+
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <a href="index.html" class="logo">My <span>tickets</span>show</a>
+    <ul class="nav-menu">
+      <li class="nav-item active">
+        <a href="#dashboard">📊 Dashboard</a>
+      </li>
+      <li class="nav-item">
+        <a href="index.html">🏠 Customer Portal</a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <a href="index.html" class="btn-back-home">← Back to Site</a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="header-panel">
+      <div>
+        <h1>CineBook Admin Panel</h1>
+        <p>Manage bookings, sales metrics, and movie catalog dynamically</p>
+      </div>
+      <div>
+        <button onclick="seedDefaults()" class="btn-cancel" style="border-color: #3b82f6; color: #60a5fa;">Load Mock Data</button>
+      </div>
+    </div>
+
+    <!-- Analytics Dashboard Cards -->
+    <div class="analytics-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-value" id="statRevenue">₹0</div>
+        <div class="stat-desc">📈 Real-time sales</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Tickets Sold</div>
+        <div class="stat-value" id="statTickets">0</div>
+        <div class="stat-desc">🎟️ Seats reserved</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Registered Users</div>
+        <div class="stat-value" id="statUsers">0</div>
+        <div class="stat-desc">👤 Accounts in DB</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active Movies</div>
+        <div class="stat-value" id="statMovies">0</div>
+        <div class="stat-desc">🎬 Streaming active</div>
+      </div>
+    </div>
+
+    <!-- Main Content Split Grid -->
+    <div class="content-layout">
+      
+      <!-- Left side: Booking registry & Registered Users -->
+      <div>
+        <div class="section-card">
+          <h2>Active Booking Records</h2>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>User</th>
+                  <th>Movie</th>
+                  <th>Seats</th>
+                  <th>Date & Time</th>
+                  <th>Total Paid</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="bookingsTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h2>Registered Users Database</h2>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>S.No</th>
+                  <th>Full Name</th>
+                  <th>Email Address</th>
+                  <th>Registration Date</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right side: Movie Inventory & Movie add form -->
+      <div>
+        
+        <div class="section-card">
+          <h2>Manage Movie Catalog</h2>
+          <div class="admin-movie-list" id="movieListBody">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h2>Add New Movie</h2>
+          <form id="addMovieForm" onsubmit="handleAddMovie(event)">
+            <div class="form-group">
+              <label for="movieTitle">Movie Title</label>
+              <input type="text" id="movieTitle" class="form-control" placeholder="e.g. Inception" required>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="movieGenre">Genre</label>
+                <input type="text" id="movieGenre" class="form-control" placeholder="e.g. Sci-Fi/Thriller" required>
+              </div>
+              <div class="form-group">
+                <label for="movieRating">Rating (⭐ scale)</label>
+                <input type="text" id="movieRating" class="form-control" placeholder="e.g. 8.8" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="movieVotes">Votes Count</label>
+                <input type="text" id="movieVotes" class="form-control" placeholder="e.g. 15K" required>
+              </div>
+              <div class="form-group">
+                <label for="moviePrice">Base Ticket Price (₹)</label>
+                <input type="number" id="moviePrice" class="form-control" value="250" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="moviePoster">Poster Image URL</label>
+              <input type="url" id="moviePoster" class="form-control" placeholder="https://..." required>
+            </div>
+
+            <div class="form-group">
+              <label for="movieTrailer">Trailer Embed URL (YouTube/Direct MP4)</label>
+              <input type="url" id="movieTrailer" class="form-control" placeholder="https://www.youtube.com/embed/..." required>
+            </div>
+
+            <div class="form-group">
+              <label for="movieDescription">Description</label>
+              <textarea id="movieDescription" class="form-control" placeholder="Brief synopsis of the movie..." required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="movieCast">Cast</label>
+              <input type="text" id="movieCast" class="form-control" placeholder="e.g. Leonardo DiCaprio, Joseph Gordon-Levitt" required>
+            </div>
+
+            <button type="submit" class="btn-submit">Add Movie to Site</button>
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Synchronized 9-movie dataset
+    const defaultMovies = [
+      {
+        id: "pushpa-2",
+        title: "Pushpa 2: The Rule",
+        genre: "Action/Thriller",
+        rating: "9.6",
+        votes: "180K",
+        poster: "https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-image,i-discovery-catalog@@icons@@star-icon-202203010609.png,lx-24,ly-615,w-29,l-end:l-text,ie-OS42LzEwICAxODBLIFZvdGVz,fs-29,co-FFFFFF,ly-612,lx-70,pa-8_0_0_0,l-end/et00356724-shjuzlrmee-portrait.jpg",
+        trailer: "https://www.youtube.com/embed/r51MYGjMcr0",
+        youtubeLink: "https://www.youtube.com/watch?v=r51MYGjMcr0",
+        directVideo: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+        description: "Pushpa Raj is back with bigger power and dangerous enemies. The clash between the forest smuggler and the corrupt police officer SP Bhanwar Singh Shekhawat intensifies in this blockbusting action sequel.",
+        cast: "Allu Arjun, Rashmika Mandanna, Fahadh Faasil",
+        price: 250,
+        showtimes: ["12:00 PM", "3:30 PM", "7:00 PM", "10:30 PM"]
+      },
+      {
+        id: "kalki-2898",
+        title: "Kalki 2898 AD",
+        genre: "Sci-Fi/Epic",
+        rating: "9.2",
+        votes: "450K",
+        poster: "https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-image,i-discovery-catalog@@icons@@star-icon-202203010609.png,lx-24,ly-615,w-29,l-end:l-text,ie-OS4yLzEwICA0NTBLIFZvdGVz,fs-29,co-FFFFFF,ly-612,lx-70,pa-8_0_0_0,l-end/et00352941-wbkkwmwytt-portrait.jpg",
+        trailer: "https://www.youtube.com/embed/kQDd1AhGI90",
+        youtubeLink: "https://www.youtube.com/watch?v=kQDd1AhGI90",
+        directVideo: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+        description: "An epic mythology-inspired sci-fi movie set in a post-apocalyptic city of Kashi in the year 2898 AD. The birth of Kalki, the final avatar of Vishnu, brings hope to humanity and triggers clashes with the tyrant Supreme Yaskin.",
+        cast: "Prabhas, Amitabh Bachchan, Kamal Haasan, Deepika Padukone",
+        price: 300,
+        showtimes: ["11:00 AM", "2:30 PM", "6:00 PM", "9:30 PM"]
+      },
+      {
+        id: "stree-2",
+        title: "Stree 2",
+        genre: "Comedy/Horror",
+        rating: "9.1",
+        votes: "220K",
+        poster: "https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-image,i-discovery-catalog@@icons@@star-icon-202203010609.png,lx-24,ly-615,w-29,l-end:l-text,ie-OS4xLzEwICAyMjBLIFZvdGVz,fs-29,co-FFFFFF,ly-612,lx-70,pa-8_0_0_0,l-end/et00364249-swnvylunvw-portrait.jpg",
+        trailer: "https://www.youtube.com/embed/KVnheGkWPhw",
+        youtubeLink: "https://www.youtube.com/watch?v=KVnheGkWPhw",
+        directVideo: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+        description: "The town of Chanderi is haunted once again, this time by a new head-chopping ghost named Sarkata who targets women. Stree must return to assist Vicky and friends to establish peace once again.",
+        cast: "Shraddha Kapoor, Rajkummar Rao, Pankaj Tripathi, Abhishek Banerjee",
+        price: 220,
+        showtimes: ["12:30 PM", "3:45 PM", "7:15 PM", "10:15 PM"]
+      },
+      {
+        id: "avatar-2",
+        title: "Avatar: The Way of Water",
+        genre: "Adventure/Sci-Fi",
+        rating: "9.0",
+        votes: "95K",
+        poster: "https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-image,i-discovery-catalog@@icons@@star-icon-202203010609.png,lx-24,ly-615,w-29,l-end:l-text,ie-OS4wLzEwICA5NUsgVm90ZXM%3D,fs-29,co-FFFFFF,ly-612,lx-70,pa-8_0_0_0,l-end/et00037264-wvxzhywckk-portrait.jpg",
+        trailer: "https://www.youtube.com/embed/d9MyW72ELq0",
+        youtubeLink: "https://www.youtube.com/watch?v=d9MyW72ELq0",
+        directVideo: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        description: "Jake Sully lives with his family on the extrasolar moon Pandora. Once a familiar threat returns to finish what was started, Jake must work with Neytiri and the aquatic Metkayina clan to protect their land.",
+        cast: "Sam Worthington, Zoe Saldana, Sigourney Weaver, Kate Winslet",
+        price: 280,
+        showtimes: ["1:00 PM", "4:45 PM", "8:30 PM"]
+      },
+      {
+        id: "tanvi",
+        title: "Tanvi: The Great",
+        genre: "Drama",
+        rating: "9.3",
+        votes: "1.1K",
+        poster: "https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-image,i-discovery-catalog@@icons@@star-icon-202203010609.png,lx-24,ly-615,w-29,l-end:l-text,ie-OS4zLzEwICAxLjJLIFZvdGVz,fs-29,co-FFFFFF,ly-612,lx-70,pa-8_0_0_0,l-end/et00440977-qjxttvdcyp-portrait.jpg",
+        trailer: "https://www.youtube.com/embed/tS8_QzLp8pU",
+        youtubeLink: "https://www.youtube.com/watch?v=tS8_QzLp8pU",
+        directVideo: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
+        description: "An emotionally gripping tale of resilience, self-discovery, and power. Follow Tanvi's epic journey of changing family values and rising against all odds in this majestic drama.",
+        cast: "Tanvi Azmi, Shreyas Talpade, Anupam Kher",
+        price: 250,
+        showtimes: ["12:00 PM", "3:30 PM", "6:45 PM", "10:00 PM"]
+      },
+      {
+        id: "nikita",
+        title: "Nikita Roy",
+        genre: "Horror/Mystery",
+        rating: "8.7",
+        votes: "786",
+        poster: "https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-image,i-discovery-catalog@@icons@@star-icon-202203010609.png,lx-24,ly-615,w-29,l-end:l-text,ie-OC43LzEwICA3ODkgVm90ZXM%3D,fs-29,co-FFFFFF,ly-612,lx-70,pa-8_0_0_0,l-end/et00337905-hwlpatmtgs-portrait.jpg",
+        trailer: "https://www.youtube.com/embed/k10ETZ41q5o",
+        youtubeLink: "https://www.youtube.com/watch?v=k10ETZ41q5o",
+        directVideo: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+        description: "A dark mystery unfolding in the dense woods of North Bengal. Nikita Roy's search for her family's past reveals a hidden horror that defies explanation and turns her life into a waking nightmare.",
+        cast: "Sonakshi Sinha, Arjun Rampal, Paresh Rawal",
+        price: 200,
+        showtimes: ["11:30 AM", "2:45 PM", "6:00 PM", "9:30 PM"]
+      },
+      {
+        id: "saiyaara",
+        title: "Saiyaara",
+        genre: "Drama/Musical",
+        rating: "8.8",
+        votes: "45.3K",
+        poster: "https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-image,i-discovery-catalog@@icons@@star-icon-202203010609.png,lx-24,ly-615,w-29,l-end:l-text,ie-OC44LzEwICA0NS44SyBWb3Rlcw%3D%3D,fs-29,co-FFFFFF,ly-612,lx-70,pa-8_0_0_0,l-end/et00447951-kdzpgwsjte-portrait.jpg",
+        trailer: "https://www.youtube.com/embed/C0DPdy98e4c",
+        youtubeLink: "https://www.youtube.com/watch?v=C0DPdy98e4c",
+        directVideo: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+        description: "A visually spectacular musical exploration of love across timelines. Rooted in cosmic themes and backed by a soulful, record-breaking soundtrack, Saiyaara is an unforgettable theatrical experience.",
+        cast: "Arijit Singh, Shraddha Kapoor, Ranbir Kapoor",
+        price: 220,
+        showtimes: ["10:00 AM", "1:15 PM", "4:30 PM", "8:00 PM", "11:00 PM"]
+      },
+      {
+        id: "maalik",
+        title: "Maalik",
+        genre: "Action/Drama",
+        rating: "7.9",
+        votes: "14K",
+        poster: "https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-image,i-discovery-catalog@@icons@@star-icon-202203010609.png,lx-24,ly-615,w-29,l-end:l-text,ie-Ny45LzEwICAxNC4xSyBWb3Rlcw%3D%3D,fs-29,co-FFFFFF,ly-612,lx-70,pa-8_0_0_0,l-end/et00443433-pgfkdkdjnh-portrait.jpg",
+        trailer: "https://www.youtube.com/embed/8FkLRUJj-C0",
+        youtubeLink: "https://www.youtube.com/watch?v=8FkLRUJj-C0",
+        directVideo: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+        description: "An action-packed political crime thriller following an honest officer who goes rogue to protect the common citizens against corporate greed and corrupt politicians.",
+        cast: "Sunny Deol, Bobby Deol, Sanjay Dutt",
+        price: 280,
+        showtimes: ["12:30 PM", "4:00 PM", "7:30 PM", "10:45 PM"]
+      },
+      {
+        id: "superman",
+        title: "Superman",
+        genre: "Adventure/Fantasy",
+        rating: "8.2",
+        votes: "35.6K",
+        poster: "https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-image,i-discovery-catalog@@icons@@star-icon-202203010609.png,lx-24,ly-615,w-29,l-end:l-text,ie-OC4yLzEwICAzNS42SyBWb3Rlcw%3D%3D,fs-29,co-FFFFFF,ly-612,lx-70,pa-8_0_0_0,l-end/et00397464-ggmherrzul-portrait.jpg",
+        trailer: "https://www.youtube.com/embed/YoHD9XEInc0",
+        youtubeLink: "https://www.youtube.com/watch?v=YoHD9XEInc0",
+        directVideo: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+        description: "The classic legend returns with stunning VFX. Follow Kal-El as he balances his human life as Clark Kent and his superhero identity to save Earth from a catastrophic galactic threat.",
+        cast: "David Corenswet, Rachel Brosnahan, Nicholas Hoult",
+        price: 300,
+        showtimes: ["11:00 AM", "2:30 PM", "6:00 PM", "9:15 PM"]
+      }
+    ];
+
+    function initData() {
+      if (!localStorage.getItem("movies")) {
+        localStorage.setItem("movies", JSON.stringify(defaultMovies));
+      }
+      if (!localStorage.getItem("bookings")) {
+        const sampleBookings = [
+          {
+            id: "BK-8294",
+            name: "Rahul Sharma",
+            movie: "Pushpa 2: The Rule",
+            seats: ["E4", "E5"],
+            showtime: "7:00 PM",
+            date: "May 27, 2026",
+            total: 590,
+            timestamp: Date.now() - 3600000
+          },
+          {
+            id: "BK-4122",
+            name: "Amit Patel",
+            movie: "Kalki 2898 AD",
+            seats: ["A1", "A2", "A3"],
+            showtime: "9:30 PM",
+            date: "May 28, 2026",
+            total: 1062,
+            timestamp: Date.now() - 7200000
+          }
+        ];
+        localStorage.setItem("bookings", JSON.stringify(sampleBookings));
+      }
+      renderDashboard();
+    }
+
+    function seedDefaults() {
+      localStorage.setItem("movies", JSON.stringify(defaultMovies));
+      alert("Mock movie catalog reloaded!");
+      renderDashboard();
+    }
+
+    function getMovies() {
+      return JSON.parse(localStorage.getItem("movies")) || [];
+    }
+
+    function getBookings() {
+      return JSON.parse(localStorage.getItem("bookings")) || [];
+    }
+
+    function renderDashboard() {
+      const movies = getMovies();
+      const bookings = getBookings();
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+
+      // Calc metrics
+      let totalRevenue = 0;
+      let totalTickets = 0;
+      bookings.forEach(b => {
+        totalRevenue += Number(b.total) || 0;
+        totalTickets += b.seats ? b.seats.length : 0;
+      });
+
+      document.getElementById("statRevenue").textContent = "₹" + totalRevenue.toLocaleString('en-IN');
+      document.getElementById("statTickets").textContent = totalTickets;
+      document.getElementById("statUsers").textContent = users.length;
+      document.getElementById("statMovies").textContent = movies.length;
+
+      // Populate bookings table
+      const bookingsTbody = document.getElementById("bookingsTableBody");
+      bookingsTbody.innerHTML = "";
+
+      if (bookings.length === 0) {
+        bookingsTbody.innerHTML = `<tr><td colspan="7" class="empty-state">No bookings recorded yet. Go to the website and book some seats!</td></tr>`;
+      } else {
+        const sortedBookings = [...bookings].reverse();
+        sortedBookings.forEach(booking => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td><strong>${booking.id}</strong></td>
+            <td>${escapeHtml(booking.name)}</td>
+            <td>${escapeHtml(booking.movie)}</td>
+            <td><span class="badge-seats">${booking.seats.join(", ")}</span></td>
+            <td>${booking.date} | ${booking.showtime}</td>
+            <td>₹${booking.total}</td>
+            <td>
+              <button onclick="cancelBooking('${booking.id}')" class="btn-cancel">Cancel</button>
+            </td>
+          `;
+          bookingsTbody.appendChild(row);
+        });
+      }
+
+      // Populate registered users table
+      const usersTbody = document.getElementById("usersTableBody");
+      usersTbody.innerHTML = "";
+
+      if (users.length === 0) {
+        usersTbody.innerHTML = `<tr><td colspan="4" class="empty-state">No registered accounts in local database.</td></tr>`;
+      } else {
+        users.forEach((user, index) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td><strong>${escapeHtml(user.name)}</strong></td>
+            <td>${escapeHtml(user.email)}</td>
+            <td>${user.date || 'N/A'}</td>
+          `;
+          usersTbody.appendChild(row);
+        });
+      }
+
+      // Populate movies list
+      const moviesListBody = document.getElementById("movieListBody");
+      moviesListBody.innerHTML = "";
+
+      if (movies.length === 0) {
+        moviesListBody.innerHTML = `<div class="empty-state">No movies in inventory.</div>`;
+      } else {
+        movies.forEach(movie => {
+          const mItem = document.createElement("div");
+          mItem.className = "admin-movie-item";
+          mItem.innerHTML = `
+            <img src="${movie.poster}" class="admin-movie-img" alt="${movie.title}" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=100'">
+            <div class="admin-movie-details">
+              <div class="admin-movie-title">${escapeHtml(movie.title)}</div>
+              <div class="admin-movie-genre">${escapeHtml(movie.genre)} | ⭐ ${movie.rating}</div>
+            </div>
+            <button onclick="deleteMovie('${movie.id}')" class="btn-delete-movie" title="Delete Movie">🗑️</button>
+          `;
+          moviesListBody.appendChild(mItem);
+        });
+      }
+    }
+
+    function cancelBooking(bookingId) {
+      if (confirm("Are you sure you want to cancel booking " + bookingId + "?")) {
+        let bookings = getBookings();
+        bookings = bookings.filter(b => b.id !== bookingId);
+        localStorage.setItem("bookings", JSON.stringify(bookings));
+        renderDashboard();
+      }
+    }
+
+    function deleteMovie(movieId) {
+      if (confirm("Are you sure you want to delete this movie from index catalog?")) {
+        let movies = getMovies();
+        movies = movies.filter(m => m.id !== movieId);
+        localStorage.setItem("movies", JSON.stringify(movies));
+        renderDashboard();
+      }
+    }
+
+    function handleAddMovie(event) {
+      event.preventDefault();
+      
+      const title = document.getElementById("movieTitle").value.trim();
+      const genre = document.getElementById("movieGenre").value.trim();
+      const rating = document.getElementById("movieRating").value.trim();
+      const votes = document.getElementById("movieVotes").value.trim();
+      const poster = document.getElementById("moviePoster").value.trim();
+      const trailer = document.getElementById("movieTrailer").value.trim();
+      const description = document.getElementById("movieDescription").value.trim();
+      const cast = document.getElementById("movieCast").value.trim();
+      const price = Number(document.getElementById("moviePrice").value) || 250;
+
+      const id = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+      const newMovie = {
+        id,
+        title,
+        genre,
+        rating,
+        votes,
+        poster,
+        trailer,
+        description,
+        cast,
+        price,
+        showtimes: ["12:00 PM", "3:30 PM", "7:00 PM", "10:30 PM"]
+      };
+
+      let movies = getMovies();
+      if (movies.some(m => m.id === id)) {
+        alert("A movie with this title already exists!");
+        return;
+      }
+
+      movies.push(newMovie);
+      localStorage.setItem("movies", JSON.stringify(movies));
+      
+      document.getElementById("addMovieForm").reset();
+      alert("Movie added successfully!");
+      
+      renderDashboard();
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    initData();
+  </script>
+</body>
+</html>
